@@ -37,5 +37,6 @@ Idents(sub_object) = "orig.ident"
 system.time(markers <- FindAllMarkers.UMI(sub_object, 
                                           logfc.threshold = 0, only.pos = F,
                                           test.use = "MAST",
+                                          return.thresh = 1,
                                           min.cells.group = 1))
 write.csv(markers,paste0(path,"KRPshS_",cell.type,"_markers_FC0.csv"))

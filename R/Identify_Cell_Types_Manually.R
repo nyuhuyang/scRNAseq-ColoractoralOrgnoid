@@ -117,7 +117,7 @@ object %<>% RenameIdents("0" = "Fetal cells",
                          "7" = "Goblet cells",
                          "8" = "Unknown",
                          "9" = "Revival stem cells",
-                         "10" = "Stem/Fetal cells",
+                         "10" = "Stem & Fetal cells",
                          "11" = "Unknown",
                          "12" = "Enteroendocrine")
 

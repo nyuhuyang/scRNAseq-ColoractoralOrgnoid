@@ -112,7 +112,8 @@ remove(Seurat_list);GC()
 
 object %<>% subset(subset = nFeature_RNA > 1000  & nCount_RNA > 1500 & percent.mt < 10)
 # FilterCellsgenerate Vlnplot before and after filteration
-Idents(object) = factor(Idents(object),levels = df_samples$sample)
+Idents(object) = "orig.ident"
+Idents(object) = factor(Idents(object),levels = c("PRE","POST","RES"))
 
 g2 <- lapply(c("nFeature_RNA", "nCount_RNA", "percent.mt"), function(features){
         VlnPlot(object = object, features = features, ncol = 3, pt.size = 0.01)+
@@ -144,6 +145,17 @@ print(plot_grid(g1[[3]]+ggtitle("mito % before filteration")+
                         theme(plot.title = element_text(hjust = 0.5))))
 dev.off()
 
+jpeg(paste0(path,"S1_QC.jpeg"), units="in", width=10, height=7,res=600)
+print(plot_grid(g2[[1]]+ggtitle("nFeature_RNA after filteration")+
+                        scale_y_log10(limits = c(100,10000))+
+                        theme(plot.title = element_text(hjust = 0.5)),
+                g2[[2]]+ggtitle("nCount_RNA after filteration")+ 
+                        scale_y_log10(limits = c(500,100000))+
+                        theme(plot.title = element_text(hjust = 0.5)),
+                g2[[3]]+ggtitle("mito % after filteration")+ 
+                        ylim(c(0,50))+
+                        theme(plot.title = element_text(hjust = 0.5)),cols = 3))
+dev.off()
 #====
 
 Seurat_list <- SplitObject(object, split.by = "orig.ident")
@@ -154,8 +166,8 @@ if(is.na(args[2])){
         message("QC")
         cell.number <- sapply(Seurat_list, function(x) length(colnames(x)))
         QC_list <- lapply(Seurat_list, function(x) as.matrix(GetAssayData(x, slot = "counts")))
-        median.nUMI <- sapply(QC_list, function(x) median(colSums(x)))
-        median.nGene <- sapply(QC_list, function(x) median(apply(x,2,function(y) sum(length(y[y>0])))))
+        median.nUMI <- sapply(QC_list, function(x) mean(colSums(x)))
+        median.nGene <- sapply(QC_list, function(x) mean(apply(x,2,function(y) sum(length(y[y>0])))))
         
         min.nUMI <- sapply(QC_list, function(x) min(colSums(x)))
         min.nGene <- sapply(QC_list, function(x) min(apply(x,2,function(y) sum(length(y[y>0])))))
@@ -164,7 +176,7 @@ if(is.na(args[2])){
                          min.nUMI,min.nGene, row.names = df_samples$sample)
         write.csv(QC.list,paste0(path,"QC_list.csv"))
         #QC.list %>% kable() %>% kable_styling()
-        remove(QC_list,median.nUMI,median.nGene,min.nUMI,min.nGene,QC.list);GC()
+        #remove(QC_list,median.nUMI,median.nGene,min.nUMI,min.nGene,QC.list);GC()
 }
 #========1.4 scran ===============================
 
